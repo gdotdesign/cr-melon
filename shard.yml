@@ -1,0 +1,10 @@
+name: api
+version: 0.1.0
+
+author:
+  - Gusztáv Szikszai <cyber.gusztav@gmail.com>
+
+development_dependencies:
+  webmock:
+    github: manastech/webmock.cr
+    branch: master
