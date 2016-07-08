@@ -9,10 +9,11 @@ module Melon
       @api : Nil | Api.class
       @method : String
       @path : String
+      @description : String
 
-      getter api, method, path
+      getter api, method, path, description
 
-      def initialize(path, @method = nil, @api = nil)
+      def initialize(path, @method = nil, @api = nil, @description = "")
         @path = path.sub(/^\//, "")
       end
 
@@ -67,13 +68,13 @@ module Melon
     end
 
     # Macro for creating a route
-    macro route(method, path = "")
+    macro route(method, path = "", description = "")
       # Create sub route to handle the given block
       class Route%id < Route
       end
 
       # Create route in registry
-      Registry.routes[{{@type}}] << Route%id.new {{path}}, {{method.upcase}}, nil
+      Registry.routes[{{@type}}] << Route%id.new {{path}}, {{method.upcase}}, nil, {{description}}
 
       def handle_route(id : Route%id) : HTTP::Server::Response
         {{yield}}
@@ -82,15 +83,15 @@ module Melon
     end
 
     # Macro for post requests
-    macro post(path = "")
-      route "post", {{path}} do
+    macro post(path = "", description = "")
+      route "post", {{path}}, {{description}} do
         {{yield}}
       end
     end
 
     # Macro for get requests
-    macro get(path = "")
-      route "get", {{path}} do
+    macro get(path = "", description = "")
+      route "get", {{path}}, {{description}} do
         {{yield}}
       end
     end

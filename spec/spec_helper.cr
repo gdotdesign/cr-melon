@@ -3,7 +3,7 @@ require "../src/melon/api"
 require "../src/melon"
 
 class TestApi2 < Melon::Api
-  get do
+  get description: "hello" do
     ok "text/plain", "byebye"
   end
 
@@ -11,7 +11,7 @@ class TestApi2 < Melon::Api
 end
 
 class TestApi3 < Melon::Api
-  post do
+  post description: "Test asdasd" do
     ok "text/plain", "wtf"
   end
 end
@@ -28,9 +28,6 @@ class TestApi < Melon::Api
   post "test" do
   end
 
-  mount TestApi2, "asd"
-  mount TestApi2, "bsg"
-  mount TestApi3, "xxx"
   mount TestApi2, "asd"
 end
 
