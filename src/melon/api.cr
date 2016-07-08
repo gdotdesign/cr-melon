@@ -33,9 +33,14 @@ module Melon
     # Contains routes for sub classes
     class Registry
       @@routes = {} of Api.class => Array(Route)
+      @@descriptions = {} of Api.class => String
 
       def self.routes
         @@routes
+      end
+
+      def self.descriptions
+        @@descriptions
       end
     end
 
@@ -99,6 +104,17 @@ module Melon
     # Type definitions
     @request : HTTP::Request
     @response : HTTP::Server::Response
+
+    @@description : String
+
+    macro description(desc)
+      Registry.descriptions[self] = {{desc}}
+    end
+
+    def self.desc
+      return "" unless Registry.descriptions.has_key?(self)
+      Registry.descriptions[self]
+    end
 
     # Initialize an api
     def initialize(@request, @response)

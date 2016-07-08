@@ -3,6 +3,8 @@ require "../src/melon/api"
 require "../src/melon"
 
 class TestApi2 < Melon::Api
+  description "My Awesome API"
+
   get description: "hello" do
     ok "text/plain", "byebye"
   end
