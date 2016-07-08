@@ -14,6 +14,9 @@ module Melon
       fchar = last ? "" : "│"
       indentation = indent == 0 ? "" : fchar.ljust indent
       length = api.routes.size
+
+      return p({">>> There are no routes! <<<", ""}) if length == 0
+
       api.routes.each_with_index do |route, index|
         is_last = index == length - 1
         first_char = is_last ? "└─" : "├─"

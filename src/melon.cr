@@ -13,7 +13,7 @@ module Melon
       api.new(context.request, context.response).route
     end
 
-    puts "Listening on http://0.0.0.0:#{port}"
+    puts "\nListening on http://0.0.0.0:#{port}"
 
     server.listen
   end
