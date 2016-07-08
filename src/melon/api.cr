@@ -111,7 +111,7 @@ module Melon
       Registry.descriptions[self] = {{desc}}
     end
 
-    def self.desc
+    def self.description
       return "" unless Registry.descriptions.has_key?(self)
       Registry.descriptions[self]
     end

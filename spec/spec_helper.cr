@@ -3,7 +3,7 @@ require "../src/melon/api"
 require "../src/melon"
 
 class TestApi2 < Melon::Api
-  description "My Awesome API"
+  description "Mounted API"
 
   get description: "hello" do
     ok "text/plain", "byebye"
@@ -13,17 +13,21 @@ class TestApi2 < Melon::Api
 end
 
 class TestApi3 < Melon::Api
-  post description: "Test asdasd" do
+  description "WTF"
+
+  post description: "Prints WTF" do
     ok "text/plain", "wtf"
   end
 end
 
 class TestApi < Melon::Api
-  get do
+  description "My Awesome API"
+
+  get description: "Greets you" do
     ok "text/plain", "hello"
   end
 
-  get "/test" do
+  get "/test", description: "It just works" do
     ok "text/plain", "works"
   end
 
