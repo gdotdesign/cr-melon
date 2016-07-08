@@ -5,6 +5,14 @@ class TestApi2 < Api
   get do
     ok "text/plain", "byebye"
   end
+
+  mount TestApi3, "test"
+end
+
+class TestApi3 < Api
+  post do
+    ok "text/plain", "wtf"
+  end
 end
 
 class TestApi < Api
@@ -12,13 +20,20 @@ class TestApi < Api
     ok "text/plain", "hello"
   end
 
-  post "/test" do
+  get "/test" do
+    ok "text/plain", "works"
+  end
+
+  post "test" do
   end
 
   mount TestApi2, "asd"
+  mount TestApi2, "bsg"
+  mount TestApi3, "xxx"
+  mount TestApi2, "asd"
 end
 
-TestApi.print_routes
+TestApi.print_route_table
 
 def mock_request(method, path, body)
   request = HTTP::Request.new(

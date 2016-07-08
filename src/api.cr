@@ -3,15 +3,19 @@ require "json"
 require "http/server"
 
 class Api
+  # This class will be the base for all routes
   abstract class Route
     @api : Nil | Api.class
-    @method : Nil | String
+    @method : String
     @path : String
 
-    def initialize(@path, @method = nil, @api = nil)
+    getter api, method, path
+
+    def initialize(path, @method = nil, @api = nil)
+      @path = path.sub(/^\//, "")
     end
 
-    def match?(method, path)
+    def match?(method : String, path : String)
       if api?
         path == @path
       else
@@ -21,14 +25,6 @@ class Api
 
     def api?
       !@api.nil?
-    end
-
-    def to_s
-      if api?
-        "<#{@path} #{@api}>"
-      else
-        "<#{@path} #{@method}>"
-      end
     end
   end
 
@@ -41,7 +37,7 @@ class Api
     end
   end
 
-  # Create a hash of routes for every subclass
+  # Create an array of routes for every subclass
   Registry.routes[self] = [] of Route
 
   # Return routes for self
@@ -55,13 +51,13 @@ class Api
   end
 
   # Macro for mounting an api
-  macro mount(api, path = "/")
+  macro mount(api, path = "")
     # Create sub route to handle the given api
     class Api%id < Route
     end
 
     # Create route in registry
-    Registry.routes[{{@type}}] << Api%id.new {{path}}, nil, {{api}}
+    Registry.routes[{{@type}}] << Api%id.new {{path}}, "", {{api}}
 
     # Match on the newly created route
     def handle_route(id : Api%id) HTTP::Server::Response
@@ -70,7 +66,7 @@ class Api
   end
 
   # Macro for creating a route
-  macro route(method, path = "/")
+  macro route(method, path = "")
     # Create sub route to handle the given block
     class Route%id < Route
     end
@@ -85,14 +81,14 @@ class Api
   end
 
   # Macro for post requests
-  macro post(path = "/")
+  macro post(path = "")
     route "post", {{path}} do
       {{yield}}
     end
   end
 
   # Macro for get requests
-  macro get(path = "/")
+  macro get(path = "")
     route "get", {{path}} do
       {{yield}}
     end
@@ -108,25 +104,23 @@ class Api
 
   # Handle routing
   def route
-    if @request.path.nil?
-      not_found
+    parts = (@request.path || "").split("/")
+    parts.delete("")
+
+    path = parts.shift { "" }
+    path = path[1..-1] if path.starts_with?('/')
+
+    method = @request.method.upcase
+
+    current_route = routes.find do |route|
+      route.match?(method, path)
+    end
+
+    if current_route
+      @request.path = parts.join('/') if current_route.api?
+      handle_route current_route
     else
-      parts = @request.path.not_nil!.split("/")
-      parts.delete("")
-
-      path = parts.shift { "/" }
-      method = @request.method.upcase
-
-      current_route = routes.find do |route|
-        route.match?(method, path)
-      end
-
-      if current_route
-        @request.path = parts.join('/') if current_route.api?
-        handle_route current_route
-      else
-        not_found
-      end
+      not_found
     end
 
     @response
@@ -138,16 +132,6 @@ class Api
 
   def routes
     Registry.routes[self.class]
-  end
-
-  def self.listen(port)
-    server = HTTP::Server.new(port) do |context|
-      new(context.request, context.response).route
-    end
-
-    puts "Listening on http://0.0.0.0:8080"
-
-    server.listen
   end
 
   def not_found
@@ -165,10 +149,37 @@ class Api
     ok "application/json", object.to_json
   end
 
-  def self.print_routes
-    puts name
-    routes.each do |route|
-      puts route.to_s
+  def self.listen(port)
+    server = HTTP::Server.new(port) do |context|
+      new(context.request, context.response).route
     end
+
+    puts "Listening on http://0.0.0.0:8080"
+
+    server.listen
+  end
+
+  def self.print_routes(indent = 0, last = false, calculate_last = false)
+    fchar = last ? "" : "│"
+    indentation = indent == 0 ? "" : fchar.ljust indent
+    length = routes.size
+    routes.each_with_index do |route, index|
+      is_last = index == length - 1
+      first_char = is_last ? "└" : "├"
+      last = calculate_last ? is_last : last
+      if route.api?
+        puts indentation + first_char + " API  - /#{route.path} - #{route.api}"
+        route.api.not_nil!.print_routes indent + 2, last
+      else
+        puts indentation + first_char + " #{route.method.ljust(4)} - /#{route.path}"
+      end
+    end
+  end
+
+  def self.print_route_table
+    first_line = "API: #{name}"
+    puts first_line
+    puts "".ljust(first_line.size, '-')
+    print_routes 0, false, true
   end
 end
