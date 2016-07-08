@@ -1,18 +1,19 @@
-require "./melon/router_printer.cr"
+require "./melon/router_printer"
+require "./melon/api"
 
 module Melon
   extend self
 
-  def print_route_table(api)
+  def print_routes(api)
     RoutePrinter.new.print api
   end
 
-  def listen(port)
+  def listen(api, port)
     server = HTTP::Server.new(port) do |context|
-      new(context.request, context.response).route
+      api.new(context.request, context.response).route
     end
 
-    puts "Listening on http://0.0.0.0:8080"
+    puts "Listening on http://0.0.0.0:#{port}"
 
     server.listen
   end

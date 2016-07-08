@@ -37,7 +37,7 @@ class TestApi < Melon::Api
   mount TestApi2, "asd"
 end
 
-Melon.print_route_table TestApi
+Melon.print_routes TestApi
 
 def mock_request(method, path, body)
   request = HTTP::Request.new(
