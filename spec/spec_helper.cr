@@ -1,7 +1,8 @@
 require "spec"
-require "../src/api"
+require "../src/melon/api"
+require "../src/melon"
 
-class TestApi2 < Api
+class TestApi2 < Melon::Api
   get do
     ok "text/plain", "byebye"
   end
@@ -9,13 +10,13 @@ class TestApi2 < Api
   mount TestApi3, "test"
 end
 
-class TestApi3 < Api
+class TestApi3 < Melon::Api
   post do
     ok "text/plain", "wtf"
   end
 end
 
-class TestApi < Api
+class TestApi < Melon::Api
   get do
     ok "text/plain", "hello"
   end
@@ -33,7 +34,7 @@ class TestApi < Api
   mount TestApi2, "asd"
 end
 
-TestApi.print_route_table
+Melon.print_route_table TestApi
 
 def mock_request(method, path, body)
   request = HTTP::Request.new(
