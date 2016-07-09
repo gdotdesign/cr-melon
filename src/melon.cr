@@ -1,4 +1,5 @@
 require "./melon/router_printer"
+require "./melon/handler"
 require "./melon/api"
 
 module Melon
