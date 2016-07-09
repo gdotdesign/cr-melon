@@ -1,3 +1,5 @@
+require "http"
+
 module Melon
   class Handler < HTTP::Handler
     @api : Api.class
