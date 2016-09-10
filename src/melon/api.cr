@@ -105,8 +105,6 @@ module Melon
     @request : HTTP::Request
     @response : HTTP::Server::Response
 
-    @@description : String
-
     macro description(desc)
       Registry.descriptions[self] = {{desc}}
     end
