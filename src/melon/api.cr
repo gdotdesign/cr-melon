@@ -143,7 +143,7 @@ module Melon
     end
 
     def handle_route(route : Route)
-      ok "text/plain", "Empty route found."
+      ok "text/plain; charset=utf-8", "Empty route found."
     end
 
     def routes
@@ -162,7 +162,7 @@ module Melon
     end
 
     def json(object)
-      ok "application/json", object.to_json
+      ok "application/json; charset=utf-8", object.to_json
     end
   end
 end
