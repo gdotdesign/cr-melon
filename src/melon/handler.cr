@@ -1,7 +1,9 @@
 require "http"
 
 module Melon
-  class Handler < HTTP::Handler
+  class Handler
+    include HTTP::Handler
+
     @api : Api.class
 
     def initialize(@api)

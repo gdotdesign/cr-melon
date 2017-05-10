@@ -46,7 +46,7 @@ def mock_request(method, path, body)
     body: body
   )
 
-  io = MemoryIO.new
+  io = IO::Memory.new
 
   response = HTTP::Server::Response.new io
 
