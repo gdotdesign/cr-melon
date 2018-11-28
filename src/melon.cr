@@ -10,12 +10,12 @@ module Melon
   end
 
   def listen(api, port)
-    server = HTTP::Server.new(port) do |context|
+    server = HTTP::Server.new do |context|
       api.new(context.request, context.response).route
     end
 
     puts "\nListening on http://0.0.0.0:#{port}"
 
-    server.listen
+    server.listen(port)
   end
 end
