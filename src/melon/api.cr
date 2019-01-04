@@ -19,7 +19,7 @@ module Melon
       end
 
       def match?(method : String, path : String)
-        if @resource && method == @method
+        if @resource
           true
         elsif api?
           path == @path
@@ -75,22 +75,24 @@ module Melon
       end
     end
 
-    macro resource(method, description = "")
-      # Create sub route to handle the given block
+    macro resource(name)
+      class Resource%id < Api
+        {{yield}}
+      end
+
       class Route%id < Route
       end
 
-      # Create route in registry
-      Registry.routes[{{@type}}] << Route%id.new "", {{method.upcase}}, nil, {{description}}, true
+      Registry.routes[{{@type}}] << Route%id.new "{{name.id}}", "", Resource%id, "", true
 
       def handle_route(id : Route%id) : HTTP::Server::Response
-        {{yield}}
-        @response
+        params = @params.merge({ {{name}} => @part })
+        Resource%id.new(@request, @response, params).route
       end
     end
 
     # Macro for creating a route
-    macro route(method, path = "", description = "", resource = false)
+    macro route(method, path = "", description = "")
       # Create sub route to handle the given block
       class Route%id < Route
       end
@@ -123,7 +125,7 @@ module Melon
     @response : HTTP::Server::Response
     @part : String = ""
 
-    getter part
+    getter params, part
 
     macro description(desc)
       Registry.descriptions[self] = {{desc}}
@@ -135,7 +137,7 @@ module Melon
     end
 
     # Initialize an api
-    def initialize(@request, @response)
+    def initialize(@request, @response, @params = {} of Symbol => String)
     end
 
     # Handle routing
