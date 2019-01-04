@@ -21,7 +21,9 @@ module Melon
         is_last = index == length - 1
         first_char = is_last ? "└─" : "├─"
         last = calculate_last ? is_last : last
-        if route.api?
+        if route.resource
+          p({indentation + first_char + " RESOURCE #{route.method} - /#{route.path}", route.description})
+        elsif route.api?
           p({indentation + first_char + "┬─ API - /#{route.path}", route.api.not_nil!.description})
           print_routes route.api.not_nil!, indent + 2, last
         else

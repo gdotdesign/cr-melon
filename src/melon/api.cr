@@ -9,16 +9,19 @@ module Melon
       @api : Nil | Api.class
       @method : String
       @path : String
+      @resource : Bool
       @description : String
 
-      getter api, method, path, description
+      getter api, method, path, description, resource
 
-      def initialize(path, @method = nil, @api = nil, @description = "")
+      def initialize(path, @method = nil, @api = nil, @description = "", @resource = false)
         @path = path.sub(/^\//, "")
       end
 
       def match?(method : String, path : String)
-        if api?
+        if @resource && method == @method
+          true
+        elsif api?
           path == @path
         else
           method == @method && path == @path
@@ -72,8 +75,22 @@ module Melon
       end
     end
 
+    macro resource(method, description = "")
+      # Create sub route to handle the given block
+      class Route%id < Route
+      end
+
+      # Create route in registry
+      Registry.routes[{{@type}}] << Route%id.new "", {{method.upcase}}, nil, {{description}}, true
+
+      def handle_route(id : Route%id) : HTTP::Server::Response
+        {{yield}}
+        @response
+      end
+    end
+
     # Macro for creating a route
-    macro route(method, path = "", description = "")
+    macro route(method, path = "", description = "", resource = false)
       # Create sub route to handle the given block
       class Route%id < Route
       end
@@ -104,6 +121,9 @@ module Melon
     # Type definitions
     @request : HTTP::Request
     @response : HTTP::Server::Response
+    @part : String = ""
+
+    getter part
 
     macro description(desc)
       Registry.descriptions[self] = {{desc}}
@@ -134,6 +154,7 @@ module Melon
 
       if current_route
         @request.path = parts.join('/') if current_route.api?
+        @part = path
         handle_route current_route
       else
         not_found
