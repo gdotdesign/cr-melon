@@ -71,7 +71,7 @@ module Melon
 
       # Match on the newly created route
       def handle_route(id : Api%id) HTTP::Server::Response
-        {{api}}.new(@request, @response).route
+        {{api}}.new(@request, @response, params).route
       end
     end
 
